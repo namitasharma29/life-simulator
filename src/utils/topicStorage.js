@@ -159,21 +159,50 @@ export const getTopicsByTag = (tag) => {
  * @returns {Object|null} - A random topic
  */
 export const getRandomTopicForPrompt = () => {
-  const recentTopics = getRecentTopics(14); // Last 2 weeks
-  
-  if (recentTopics.length === 0) return null;
-  
-  // Weight selection: low confidence topics are 2x more likely
-  const weightedTopics = [];
-  recentTopics.forEach(topic => {
-    const weight = topic.confidence <= 3 ? 2 : 1;
-    for (let i = 0; i < weight; i++) {
-      weightedTopics.push(topic);
+  // We'll consider topics up to 21 days old for prompts so older items
+  // can appear occasionally for reinforcement.
+  const topics = getAllTopics();
+  if (!topics || topics.length === 0) return null;
+
+  const now = Date.now();
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  // Build weighted list where:
+  // - New topics (<=7 days) get higher base weight
+  // - Topics 8-14 days get moderate weight
+  // - Topics 15-21 days get lower weight
+  // - Confidence inversely scales weight (lower confidence -> higher weight)
+  const weighted = [];
+
+  topics.forEach(topic => {
+    const added = new Date(topic.dateAdded).getTime();
+    const daysAgo = Math.floor((now - added) / msPerDay);
+
+    if (isNaN(added)) return; // skip invalid dates
+
+    // Only include up to 21 days for prompt sampling; include older topics with small chance
+    let recencyWeight = 0;
+    if (daysAgo <= 7) recencyWeight = 3; // recent topics favored
+    else if (daysAgo <= 14) recencyWeight = 2; // slightly less often
+    else if (daysAgo <= 21) recencyWeight = 1; // reinforcement
+    else recencyWeight = 0.5; // older topics still possible but rare
+
+    // Normalize confidence to 1-5 and invert so lower confidence -> larger weight
+    const conf = Math.min(Math.max(Number(topic.confidence) || 3, 1), 5);
+    const confidenceWeight = (6 - conf); // 5 -> 1, 1 -> 5
+
+    // Composite weight (ensure at least 1)
+    const composite = Math.max(1, Math.round(recencyWeight * confidenceWeight));
+
+    for (let i = 0; i < composite; i++) {
+      weighted.push(topic);
     }
   });
-  
-  const randomIndex = Math.floor(Math.random() * weightedTopics.length);
-  return weightedTopics[randomIndex];
+
+  if (weighted.length === 0) return null;
+
+  const idx = Math.floor(Math.random() * weighted.length);
+  return weighted[idx];
 };
 
 /**
@@ -181,13 +210,46 @@ export const getRandomTopicForPrompt = () => {
  * @returns {Array} - [topic1, topic2] or []
  */
 export const getRandomTopicPair = () => {
-  const recentTopics = getRecentTopics(14);
-  
-  if (recentTopics.length < 2) return [];
-  
-  // Shuffle and pick first 2
-  const shuffled = [...recentTopics].sort(() => Math.random() - 0.5);
-  return [shuffled[0], shuffled[1]];
+  // Pick two distinct topics using the same weighted logic so the pair
+  // favors recent and low-confidence topics.
+  const topics = getAllTopics();
+  if (!topics || topics.length < 2) return [];
+
+  // Helper to pick one weighted topic excluding an id
+  const pickOne = (excludeId) => {
+    const weighted = [];
+    const now = Date.now();
+    const msPerDay = 24 * 60 * 60 * 1000;
+
+    topics.forEach(topic => {
+      if (topic.id === excludeId) return;
+      const added = new Date(topic.dateAdded).getTime();
+      if (isNaN(added)) return;
+      const daysAgo = Math.floor((now - added) / msPerDay);
+
+      let recencyWeight = 0;
+      if (daysAgo <= 7) recencyWeight = 3;
+      else if (daysAgo <= 14) recencyWeight = 2;
+      else if (daysAgo <= 21) recencyWeight = 1;
+      else recencyWeight = 0.5;
+
+      const conf = Math.min(Math.max(Number(topic.confidence) || 3, 1), 5);
+      const confidenceWeight = (6 - conf);
+
+      const composite = Math.max(1, Math.round(recencyWeight * confidenceWeight));
+      for (let i = 0; i < composite; i++) weighted.push(topic);
+    });
+
+    if (weighted.length === 0) return null;
+    return weighted[Math.floor(Math.random() * weighted.length)];
+  };
+
+  const first = pickOne(null);
+  if (!first) return [];
+  const second = pickOne(first.id);
+  if (!second) return [first];
+
+  return [first, second];
 };
 
 // ============================================

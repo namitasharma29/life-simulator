@@ -11,6 +11,7 @@ import WeeklyPlanner from './components/WeeklyPlanner';
 import JourneyRoadmap from './components/JourneyRoadmap';
 import FinalBoss from './components/FinalBoss';
 import JournalModal from './components/JournalModal';
+import TopicLogger from './components/TopicLogger';
 
 import { levels, achievementsList, questPools } from './data/gameData';
 import { loadGameData, saveGameData, loadDailyQuests, saveDailyQuests } from './utils/storage';
@@ -22,6 +23,7 @@ import {
   checkJournalAchievements,
   getTotalEntries 
 } from './utils/journalStorage';
+import topicStorage from './utils/topicStorage';
 
 const PinterestGame = () => {
   // --- Load saved base data synchronously
@@ -247,6 +249,11 @@ const PinterestGame = () => {
           }
         });
         
+        // Log topic interactions if this was a topic-based prompt
+        if (journalEntry.promptType === 'topic') {
+          console.log('📚 Topic-based journal entry saved! Analytics tracked.');
+        }
+        
         console.log('✅ Journal entry saved! +10 XP, Streak:', newStreak);
       }
     } catch (error) {
@@ -396,6 +403,12 @@ const PinterestGame = () => {
               styles={styles}
               skillIcons={skillIcons}
               skillNames={skillNames}
+            />
+
+            {/* Topic Logger */}
+            <TopicLogger
+              styles={styles}
+              onTopicAdded={() => console.log('📚 Topic logged!')}
             />
 
             {/* Achievements */}

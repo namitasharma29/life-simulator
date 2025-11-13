@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, Sparkles, Flame, X, CheckCircle } from 'lucide-react';
-import { getDailyPrompt } from '../data/journalPrompts';
+import { getDailyPrompt, getTopicPrompt, getReviewPrompt } from '../data/journalPrompts';
+import topicStorage from '../utils/topicStorage';
 
 const JournalModal = ({ onClose, onSubmit, currentStreak }) => {
   const [entry, setEntry] = useState('');
@@ -9,8 +10,22 @@ const JournalModal = ({ onClose, onSubmit, currentStreak }) => {
   const [dailyPrompt, setDailyPrompt] = useState(null);
 
   useEffect(() => {
-    // Get today's prompt
-    const prompt = getDailyPrompt();
+    // Get today's prompt: prioritize topic-based prompts if available
+    const allTopics = topicStorage.getAllTopics();
+    let prompt;
+    
+    if (allTopics && allTopics.length > 0 && Math.random() < 0.5) {
+      // 50% chance to show a topic-based or review prompt if topics exist
+      const lowConfidenceTopics = topicStorage.getLowConfidenceTopics();
+      if (lowConfidenceTopics && lowConfidenceTopics.length > 0 && Math.random() < 0.4) {
+        prompt = getReviewPrompt();
+      } else {
+        prompt = getTopicPrompt();
+      }
+    } else {
+      prompt = getDailyPrompt();
+    }
+    
     setDailyPrompt(prompt);
   }, []);
 
@@ -39,6 +54,11 @@ const JournalModal = ({ onClose, onSubmit, currentStreak }) => {
       entry: entry.trim(),
       wordCount: wordCount,
     };
+    
+    // If this was a topic prompt, track that in the entry for analytics
+    if (dailyPrompt.category === 'topic') {
+      journalEntry.promptType = 'topic';
+    }
 
     // Show success animation
     setShowSuccess(true);
