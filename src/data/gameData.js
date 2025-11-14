@@ -28,7 +28,10 @@ export const achievementsList = [
   { id: '3-day-streak', name: '🔥 3-Day Streak', desc: 'Journal 3 days in a row', xpReward: 50 },
   { id: 'week-warrior', name: '🚀 Week Warrior', desc: 'Journal 7 days straight', xpReward: 100 },
   { id: 'insight-hunter', name: '💎 Insight Hunter', desc: 'Write 20 journal entries', xpReward: 150 },
-  { id: '30-day-legend', name: '👑 30-Day Legend', desc: 'Maintain a 30-day streak', xpReward: 500 }
+  { id: '30-day-legend', name: '👑 30-Day Legend', desc: 'Maintain a 30-day streak', xpReward: 500 },
+  { id: 'first-review', name: '📝 First Review', desc: 'Complete your first weekly review', xpReward: 50 },
+  { id: 'consistent-reviewer', name: '🔄 Consistent Reviewer', desc: 'Complete 4 weekly reviews in a row', xpReward: 150 },
+  { id: 'growth-mindset', name: '📈 Growth Mindset', desc: 'Boost 3 topic confidences in one week', xpReward: 75 },
 ];
 
 // =========================

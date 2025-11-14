@@ -23,7 +23,10 @@ import {
   checkJournalAchievements,
   getTotalEntries 
 } from './utils/journalStorage';
+
 import topicStorage from './utils/topicStorage';
+import WeeklyReviewModal from './components/WeeklyReviewModal';
+import weeklyReviewStorage from './utils/weeklyReviewStorage';
 
 const PinterestGame = () => {
   // --- Load saved base data synchronously
@@ -44,7 +47,8 @@ const PinterestGame = () => {
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalStreak, setJournalStreak] = useState(0);
   const [hasJournaledTodayState, setHasJournaledTodayState] = useState(false);
-  
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [weeklyReviewReminder, setWeeklyReviewReminder] = useState(false);
 
   // --- Generate daily quests safely
   const generateDailyQuests = () => {
@@ -88,6 +92,18 @@ const PinterestGame = () => {
   useEffect(() => {
     setJournalStreak(getJournalStreak());
     setHasJournaledTodayState(hasJournaledToday());
+  }, []);
+
+  // Add this useEffect to check if review is needed
+  useEffect(() => {
+    // Check if it's Sunday-Thursday and review not done
+    const today = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+    const hasReviewed = weeklyReviewStorage.hasReviewedThisWeek();
+    
+    // Show reminder if it's Sunday-Thursday and not reviewed
+    if (today >= 0 && today <= 4 && !hasReviewed) {
+      setWeeklyReviewReminder(true);
+    }
   }, []);
 
   // --- Helper functions for progression
@@ -156,6 +172,30 @@ const PinterestGame = () => {
     setAchievements(prev => [...prev, achievementId]);
     addXP(ach.xpReward);
     confetti({ particleCount: 100, spread: 50, origin: { y: 0.7 }});
+  };
+  
+  // --- Weekly Review Handler
+  const handleWeeklyReviewComplete = (generatedQuests) => {
+    // Award XP for completing review
+    addXP(50, 'balance');
+    
+    // Check for review achievements
+    const reviewStreak = weeklyReviewStorage.getReviewStreak();
+    
+    // First review achievement
+    if (reviewStreak === 1 && !achievements.includes('first-review')) {
+      unlockAchievement('first-review');
+    }
+    
+    // 4-week streak achievement
+    if (reviewStreak >= 4 && !achievements.includes('consistent-reviewer')) {
+      unlockAchievement('consistent-reviewer');
+    }
+    console.log('✅ Weekly review complete! Generated quests:', generatedQuests);
+    
+    // Close modal and hide reminder
+    setShowWeeklyReview(false);
+    setWeeklyReviewReminder(false);
   };
 
   // --- Derived values
@@ -397,18 +437,92 @@ const PinterestGame = () => {
               />
             )}
 
+            {/* Topic Logger */}
+            <TopicLogger
+              styles={styles}
+              onTopicAdded={() => console.log('📚 Topic logged!')}
+            />
+
+            {/* Weekly Review Reminder */}
+            {weeklyReviewReminder && !showWeeklyReview && (
+              <div
+                style={{
+                  position: 'fixed',
+                  bottom: '24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: '#8b5cf6',
+                  color: 'white',
+                  padding: '16px 24px',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 40px rgba(139, 92, 246, 0.4)',
+                  zIndex: 999,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  animation: 'slideUp 0.3s ease-out'
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                    📊 Weekly Review Available!
+                  </div>
+                  <div style={{ fontSize: '14px', opacity: 0.9 }}>
+                    Reflect on this week and plan the next
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowWeeklyReview(true)}
+                  style={{
+                    padding: '8px 20px',
+                    backgroundColor: 'white',
+                    color: '#8b5cf6',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Start Review
+                </button>
+                <button
+                  onClick={() => setWeeklyReviewReminder(false)}
+                  style={{
+                    padding: '4px',
+                    backgroundColor: 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '20px',
+                    opacity: 0.7
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            <style>{`
+              @keyframes slideUp {
+                from { transform: translate(-50%, 20px); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+              }
+            `}</style>
+
+            {/* Weekly Review Modal */}
+            {showWeeklyReview && (
+              <WeeklyReviewModal
+                onClose={() => setShowWeeklyReview(false)}
+                onComplete={handleWeeklyReviewComplete}
+              />
+            )}
+
             {/* Skill Trees */}
             <SkillTree
               skillPoints={skillPoints}
               styles={styles}
               skillIcons={skillIcons}
               skillNames={skillNames}
-            />
-
-            {/* Topic Logger */}
-            <TopicLogger
-              styles={styles}
-              onTopicAdded={() => console.log('📚 Topic logged!')}
             />
 
             {/* Achievements */}
