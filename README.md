@@ -385,26 +385,9 @@ This is a personal project, but if you'd like to build something similar or have
 
 ---
 
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Anthropic Claude** - For being an amazing coding assistant and brainstorming partner
-- **Lucide Icons** - Beautiful, consistent icon library
-- **React Team** - For making frontend development enjoyable
-
----
-
 ## 📧 Contact
-
-**Mihika Sharma** (pseudonym for portfolio)
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- LinkedIn: https://www.linkedin.com/in/namita-sharma-798b0b215/
+- Email: namitasharma122905@gmail.com
 
 ---
 
@@ -412,14 +395,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Current Version**: 1.0.0 (MVP Complete!)
 **Status**: ✅ Active Development
-**Last Updated**: November 2024
+**Last Updated**: November 2025
 
 ---
 
 <div align="center">
 
-### ⭐ If you found this interesting, give it a star!
-
 **Built with 💜 by Mihika | Powered by React ⚛️**
 
 *"Every XP point brings you closer to your goal"* ✨
+
+</div>
