@@ -378,7 +378,7 @@ const PinterestGame = () => {
     <div style={styles.container}>
       <div style={styles.maxWidth}>
         <div style={styles.header}>
-          <h1 style={styles.title}>🎮 Mission Pinterest: The Mihika Saga</h1>
+          <h1 style={styles.title}>🎮 Mission Data Scientist: The Mihika Saga</h1>
           <p style={styles.subtitle}>Your journey to Data Scientist ✨</p>
         </div>
 

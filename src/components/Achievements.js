@@ -2,7 +2,7 @@ import React from 'react';
 import { Award, Lock, Star, TrendingUp } from 'lucide-react';
 import achievementStorage from '../utils/achievementStorage';
 
-const Achievements = ({ achievements, achievementsList, unlockAchievement, styles, achievementTick }) => {
+const Achievements = ({ achievements, achievementsList, styles }) => {
   // Get tier colors
   const getTierColor = (tierName) => {
     switch (tierName?.toLowerCase()) {
@@ -89,22 +89,16 @@ const Achievements = ({ achievements, achievementsList, unlockAchievement, style
                 position: 'relative',
                 overflow: 'hidden',
                 transition: 'all 0.3s ease',
-                cursor: hasTiers && !isMaxLevel ? 'pointer' : 'default',
+                cursor: 'default',
                 boxShadow: hasTiers && currentLevel > 0 
                   ? `0 4px 12px ${tierColors.glow}`
                   : 'none'
               }}
-              onClick={() => {
-                // For testing: click to advance tier (remove in production)
-                if (hasTiers && !isMaxLevel) {
-                  unlockAchievement(achievement.id);
-                }
-              }}
+              
               onMouseEnter={(e) => {
-                if (hasTiers && !isMaxLevel) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = `0 8px 20px ${tierColors?.glow || 'rgba(0,0,0,0.1)'}`;
-                }
+                // Hover effect: lift and glow (always, not clickable)
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = `0 8px 20px ${tierColors?.glow || 'rgba(0,0,0,0.1)'}`;
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';

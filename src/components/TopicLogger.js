@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BookOpen, Plus, X } from 'lucide-react';
 import topicStorage from '../utils/topicStorage';
 
-const TopicLogger = ({ styles, onTopicAdded }) => {
+const TopicLogger = ({ styles, onTopicAdded }) => { onTopicAdded
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     course: '',

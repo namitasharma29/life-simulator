@@ -5,9 +5,9 @@ export const levels = [
   { level: 1, title: "The Analyst Apprentice", phase: "🧩 Foundation", goal: "Build GPA, core math/stats base", xpRequired: 0 },
   { level: 2, title: "Data Alchemist", phase: "🧠 Growth", goal: "Strengthen DS + coding + intuition", xpRequired: 500 },
   { level: 3, title: "Internship Seeker", phase: "💼 Launch", goal: "Land data-related internship", xpRequired: 1000 },
-  { level: 4, title: "Pinterest Pathfinder", phase: "🚀 Career Entry", goal: "Secure DS role / grad school offer", xpRequired: 1500 },
+  { level: 4, title: "Pathfinder", phase: "🚀 Career Entry", goal: "Secure DS role / grad school offer", xpRequired: 1500 },
   { level: 5, title: "Product Strategist", phase: "🏢 Leadership", goal: "Transition to management & strategy", xpRequired: 2000 },
-  { level: 6, title: "Visionary of Pinterest", phase: "👑 Data Scientist", goal: "Build, lead, inspire", xpRequired: 2500 }
+  { level: 6, title: "Visionary", phase: "👑 Data Scientist", goal: "Build, lead, inspire", xpRequired: 2500 }
 ];
 
 // =========================
