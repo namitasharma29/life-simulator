@@ -14,28 +14,14 @@ export const levels = [
 // 🏅 ACHIEVEMENTS — Milestones
 // =========================
 export const achievementsList = [
-  { id: 'math-slayer', name: '🥇 Math Slayer', desc: 'Get an A on a math exam', xpReward: 50 },
-  { id: 'code-whisperer', name: '🧠 Code Whisperer', desc: 'Finish 3 Python/SQL practice days in a week', xpReward: 40 },
-  { id: 'quant-queen', name: '📈 Quant Queen', desc: 'Complete a DS project with visualization', xpReward: 75 },
-  { id: 'master-planner', name: '📜 Master Planner', desc: 'Stick to schedule for 7 straight days', xpReward: 30 },
-  { id: 'internship-hunter', name: '💼 Internship Hunter', desc: 'Apply to 10+ internships', xpReward: 50 },
-  { id: 'researcher-rising', name: '🧪 Researcher Rising', desc: 'Contribute in 3 research meetings', xpReward: 50 },
-  { id: 'connector', name: '💬 The Connector', desc: 'Reach out to 3 new people on LinkedIn', xpReward: 25 },
-  { id: 'focus-master', name: '🧘 Focus Master', desc: 'No procrastination streak (3 days)', xpReward: 30 },
-  { id: '4plus1', name: '🎓 4+1 Candidate', desc: 'Get confirmation of eligibility', xpReward: 100 },
-  { id: 'pinterest-path', name: '🏆 Pinterest Pathfounder', desc: 'Land first data science internship', xpReward: 200 },
-  { id: 'first-entry', name: '📝 First Reflection', desc: 'Write your first journal entry', xpReward: 25 },
-  { id: '3-day-streak', name: '🔥 3-Day Streak', desc: 'Journal 3 days in a row', xpReward: 50 },
-  { id: 'week-warrior', name: '🚀 Week Warrior', desc: 'Journal 7 days straight', xpReward: 100 },
-  { id: 'insight-hunter', name: '💎 Insight Hunter', desc: 'Write 20 journal entries', xpReward: 150 },
-  { id: '30-day-legend', name: '👑 30-Day Legend', desc: 'Maintain a 30-day streak', xpReward: 500 },
-  { id: 'first-review', name: '📝 First Review', desc: 'Complete your first weekly review', xpReward: 50 },
-  { id: 'consistent-reviewer', name: '🔄 Consistent Reviewer', desc: 'Complete 4 weekly reviews in a row', xpReward: 150 },
-  { id: 'growth-mindset', name: '📈 Growth Mindset', desc: 'Boost 3 topic confidences in one week', xpReward: 75 },
   { id: 'resource-collector', name: '📚 Resource Collector', desc: 'Add 10 resources to your library', xpReward: 25 },
   { id: 'scholar', name: '🎓 Scholar', desc: 'Complete 10 resources', xpReward: 100 },
   { id: 'librarian', name: '📖 Librarian', desc: 'Add 50 resources', xpReward: 150 },
-  { id: 'knowledge-seeker', name: '🔍 Knowledge Seeker', desc: 'Complete 50 resources', xpReward: 300 }
+  { id: 'knowledge-seeker', name: '🔍 Knowledge Seeker', desc: 'Complete 50 resources', xpReward: 300 },  
+  { id: 'journal-warrior', name: '🔥 Journal Streak', desc: 'Maintain daily journaling streak', xpReward: 50 },
+  { id: 'topic-master', name: '📚 Topic Master', desc: 'Log topics you\'re learning', xpReward: 30 },
+  { id: 'interview-ace', name: '🎯 Interview Ready', desc: 'Practice interview questions', xpReward: 50 },
+  { id: 'project-builder', name: '🏗️ Project Builder', desc: 'Complete data science projects', xpReward: 100 }
 ];
 
 // =========================

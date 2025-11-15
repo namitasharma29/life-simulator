@@ -170,36 +170,33 @@ const PinterestGame = () => {
   // --- Achievements unlocking (supports tiered 3-level achievements)
   const [achievementTick, setAchievementTick] = useState(0);
 
+  // Simplified - ONLY handles tiered achievements
   const unlockAchievement = (achievementId) => {
-    // If this achievement is tiered, advance the tier and award tier XP
-    if (achievementStorage.hasTiers(achievementId)) {
-      const result = achievementStorage.advanceLevel(achievementId);
-      if (!result) return;
+    // All achievements are tiered now
+    const result = achievementStorage.advanceLevel(achievementId);
+    if (!result) return;
 
-      // If we actually leveled up
-      if (result.newLevel > result.previousLevel) {
-        // Ensure it's present in the simple achievements array (so existing checks still work)
-        setAchievements(prev => prev.includes(achievementId) ? prev : [...prev, achievementId]);
-
-        // Award XP for this tier
-        if (result.xpAwarded) addXP(result.xpAwarded);
-        confetti({ particleCount: 100, spread: 50, origin: { y: 0.7 }});
-
-        // Trigger UI refresh for Achievements component
-        setAchievementTick(t => t + 1);
+    // If we actually leveled up
+    if (result.newLevel > result.previousLevel) {
+      // Ensure it's in the achievements array (for compatibility)
+      if (!achievements.includes(achievementId)) {
+        setAchievements(prev => [...prev, achievementId]);
       }
 
-      return;
-    }
+      // Award XP for this tier
+      if (result.xpAwarded) {
+        addXP(result.xpAwarded, 'balance'); 
+      }
+      
+      confetti({ particleCount: 100, spread: 50, origin: { y: 0.7 }});
 
-    // Non-tiered achievement (legacy flow)
-    if (achievements.includes(achievementId)) return;
-    const ach = achievementsList.find(a => a.id === achievementId);
-    if (!ach) return;
-    setAchievements(prev => [...prev, achievementId]);
-    addXP(ach.xpReward);
-    confetti({ particleCount: 100, spread: 50, origin: { y: 0.7 }});
+      // Trigger UI refresh
+      setAchievementTick(t => t + 1);
+      
+      console.log(`🏆 ${achievementId} leveled up to ${result.tierName}! +${result.xpAwarded} XP`);
+    }
   };
+  
   
   // --- Weekly Review Handler
   const handleWeeklyReviewComplete = (generatedQuests) => {
@@ -227,52 +224,55 @@ const PinterestGame = () => {
 
   // --- Resource Library Handler
   const handleResourceComplete = (xpEarned, resource) => {
-    // Determine skill based on resource type
-    let skill = 'tech'; // default
+    // Award XP based on resource type
+    let skill = 'tech';
     if (resource) {
       switch (resource.type) {
         case 'video':
         case 'tutorial':
         case 'course':
-          skill = 'tech'; // These are typically DS/coding tutorials
+          skill = 'tech';
           break;
         case 'article':
         case 'paper':
         case 'documentation':
-          skill = 'academic'; // Research-oriented
+          skill = 'academic';
           break;
         case 'tool':
         case 'dataset':
-          skill = 'tech'; // Technical resources
+          skill = 'tech';
           break;
         default:
-          skill = 'career'; // Career-related articles, guides, etc.
+          skill = 'career';
       }
     }
     
     addXP(xpEarned, skill);
     
-    // Check for all resource-related achievements
+    // Get updated stats
     const stats = resourceStorage.getResourceStats();
     
-    // 📚 Resource Collector - First resource
-    if (stats.added === 1 && !achievements.includes('resource-collector')) {
-      unlockAchievement('resource-collector');
-    }
+    // Check tiered achievements automatically
+    checkTieredAchievement('resource-collector', stats.total); // Total added
+    checkTieredAchievement('scholar', stats.completed); // Completed
+    checkTieredAchievement('librarian', stats.total); // Same as resource-collector
+    checkTieredAchievement('knowledge-seeker', stats.completed); // Same as scholar
+  };
+
+  // Helper to check tiered achievements automatically
+  const checkTieredAchievement = (achievementId, currentCount) => {
+    if (!achievementStorage.hasTiers(achievementId)) return;
     
-    // 🎓 Scholar - Complete 10 resources
-    if (stats.completed === 10 && !achievements.includes('scholar')) {
-      unlockAchievement('scholar');
-    }
+    const tiers = achievementStorage.getTiers(achievementId);
+    const currentProgress = achievementStorage.getProgress(achievementId);
+    const currentLevel = currentProgress.level || 0;
     
-    // 📖 Librarian - Add 50 resources
-    if (stats.added === 50 && !achievements.includes('librarian')) {
-      unlockAchievement('librarian');
-    }
-    
-    // 🔍 Knowledge Seeker - Complete 50 resources
-    if (stats.completed === 50 && !achievements.includes('knowledge-seeker')) {
-      unlockAchievement('knowledge-seeker');
+    // Check if we've reached the next tier threshold
+    if (currentLevel < tiers.length) {
+      const nextTier = tiers[currentLevel];
+      if (currentCount >= nextTier.threshold) {
+        unlockAchievement(achievementId);
+      }
     }
   };
 
@@ -354,19 +354,7 @@ const PinterestGame = () => {
         addXP(10, 'balance');
         
         // Check for journal achievements
-        const journalAchievements = checkJournalAchievements();
-        
-        // Unlock any new achievements
-        journalAchievements.forEach(achId => {
-          if (!achievements.includes(achId)) {
-            // Find the achievement and unlock it
-            const ach = achievementsList.find(a => a.id === achId);
-            if (ach) {
-              setAchievements(prev => [...prev, achId]);
-              addXP(ach.xpReward);
-            }
-          }
-        });
+        checkTieredAchievement('journal-warrior', newStreak);
         
         // Log topic interactions if this was a topic-based prompt
         if (journalEntry.promptType === 'topic') {
@@ -379,6 +367,11 @@ const PinterestGame = () => {
       console.error('❌ Error submitting journal:', error);
       alert('Oops! Something went wrong saving your entry. Try again?');
     }
+  };
+
+  const handleTopicAdded = () => {
+    const allTopics = topicStorage.getAllTopics();
+    checkTieredAchievement('topic-master', allTopics.length);
   };
 
   return (
@@ -519,7 +512,7 @@ const PinterestGame = () => {
             {/* Topic Logger */}
             <TopicLogger
               styles={styles}
-              onTopicAdded={() => console.log('📚 Topic logged!')}
+              onTopicAdded={handleTopicAdded}
             />
 
             {/* Weekly Review Reminder */}

@@ -25,7 +25,31 @@ const TIERS = {
     { name: 'Bronze', threshold: 1, xpReward: 25 },
     { name: 'Silver', threshold: 10, xpReward: 100 },
     { name: 'Gold', threshold: 50, xpReward: 300 }
-  ]
+  ],
+
+  'journal-warrior': [
+    { name: 'Bronze', threshold: 7, xpReward: 50 },
+    { name: 'Silver', threshold: 21, xpReward: 150 },
+    { name: 'Gold', threshold: 100, xpReward: 500 }
+    ],
+
+    'topic-master': [
+    { name: 'Bronze', threshold: 10, xpReward: 50 },
+    { name: 'Silver', threshold: 30, xpReward: 150 },
+    { name: 'Gold', threshold: 100, xpReward: 400 }
+    ],
+
+    'interview-ace': [
+    { name: 'Bronze', threshold: 10, xpReward: 75 },
+    { name: 'Silver', threshold: 50, xpReward: 200 },
+    { name: 'Gold', threshold: 100, xpReward: 500 }
+    ],
+
+    'project-builder': [
+    { name: 'Bronze', threshold: 1, xpReward: 100 },
+    { name: 'Silver', threshold: 5, xpReward: 300 },
+    { name: 'Gold', threshold: 10, xpReward: 750 }
+    ]
 };
 
 const load = () => {
