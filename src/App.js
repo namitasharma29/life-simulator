@@ -27,6 +27,8 @@ import {
 import topicStorage from './utils/topicStorage';
 import WeeklyReviewModal from './components/WeeklyReviewModal';
 import weeklyReviewStorage from './utils/weeklyReviewStorage';
+import ResourceLibrary from './components/ResourceLibrary';
+import resourceStorage from './utils/resourceStorage';
 
 const PinterestGame = () => {
   // --- Load saved base data synchronously
@@ -197,6 +199,58 @@ const PinterestGame = () => {
     setShowWeeklyReview(false);
     setWeeklyReviewReminder(false);
   };
+
+  // --- Resource Library Handler
+  const handleResourceComplete = (xpEarned, resource) => {
+    // Determine skill based on resource type
+    let skill = 'tech'; // default
+    if (resource) {
+      switch (resource.type) {
+        case 'video':
+        case 'tutorial':
+        case 'course':
+          skill = 'tech'; // These are typically DS/coding tutorials
+          break;
+        case 'article':
+        case 'paper':
+        case 'documentation':
+          skill = 'academic'; // Research-oriented
+          break;
+        case 'tool':
+        case 'dataset':
+          skill = 'tech'; // Technical resources
+          break;
+        default:
+          skill = 'career'; // Career-related articles, guides, etc.
+      }
+    }
+    
+    addXP(xpEarned, skill);
+    
+    // Check for all resource-related achievements
+    const stats = resourceStorage.getResourceStats();
+    
+    // 📚 Resource Collector - First resource
+    if (stats.added === 1 && !achievements.includes('resource-collector')) {
+      unlockAchievement('resource-collector');
+    }
+    
+    // 🎓 Scholar - Complete 10 resources
+    if (stats.completed === 10 && !achievements.includes('scholar')) {
+      unlockAchievement('scholar');
+    }
+    
+    // 📖 Librarian - Add 50 resources
+    if (stats.added === 50 && !achievements.includes('librarian')) {
+      unlockAchievement('librarian');
+    }
+    
+    // 🔍 Knowledge Seeker - Complete 50 resources
+    if (stats.completed === 50 && !achievements.includes('knowledge-seeker')) {
+      unlockAchievement('knowledge-seeker');
+    }
+  };
+
 
   // --- Derived values
   const currentLevel = getCurrentLevel();
@@ -517,12 +571,9 @@ const PinterestGame = () => {
               />
             )}
 
-            {/* Skill Trees */}
-            <SkillTree
-              skillPoints={skillPoints}
+            <ResourceLibrary 
+              onResourceComplete={handleResourceComplete}
               styles={styles}
-              skillIcons={skillIcons}
-              skillNames={skillNames}
             />
 
             {/* Achievements */}
@@ -550,6 +601,16 @@ const PinterestGame = () => {
               currentLevel={currentLevel}
               styles={styles}
             />
+
+             {/* Skill Trees */}
+            <SkillTree
+              skillPoints={skillPoints}
+              styles={styles}
+              skillIcons={skillIcons}
+              skillNames={skillNames}
+            />
+
+            
           </div>
         </div>
 

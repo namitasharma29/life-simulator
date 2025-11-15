@@ -32,6 +32,10 @@ export const achievementsList = [
   { id: 'first-review', name: '📝 First Review', desc: 'Complete your first weekly review', xpReward: 50 },
   { id: 'consistent-reviewer', name: '🔄 Consistent Reviewer', desc: 'Complete 4 weekly reviews in a row', xpReward: 150 },
   { id: 'growth-mindset', name: '📈 Growth Mindset', desc: 'Boost 3 topic confidences in one week', xpReward: 75 },
+  { id: 'resource-collector', name: '📚 Resource Collector', desc: 'Add 10 resources to your library', xpReward: 25 },
+  { id: 'scholar', name: '🎓 Scholar', desc: 'Complete 10 resources', xpReward: 100 },
+  { id: 'librarian', name: '📖 Librarian', desc: 'Add 50 resources', xpReward: 150 },
+  { id: 'knowledge-seeker', name: '🔍 Knowledge Seeker', desc: 'Complete 50 resources', xpReward: 300 }
 ];
 
 // =========================

@@ -210,10 +210,10 @@ export const markResourceComplete = (resourceId) => {
     if (resource.duration > 120) xp += 10;
     
     console.log(`✅ Resource completed! +${xp} XP`);
-    return { success: true, xpEarned: xp };
+    return { success: true, xpEarned: xp, resource };
   }
   
-  return { success: false, xpEarned: 0 };
+  return { success: false, xpEarned: 0, resource: null };
 };
 
 /**

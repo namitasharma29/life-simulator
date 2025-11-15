@@ -59,7 +59,7 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
     if (newStatus === resourceStorage.RESOURCE_STATUS.COMPLETED) {
       const result = resourceStorage.markResourceComplete(resourceId);
       if (result.success && onResourceComplete) {
-        onResourceComplete(result.xpEarned);
+        onResourceComplete(result.xpEarned, result.resource);
       }
     } else {
       resourceStorage.updateResourceStatus(resourceId, newStatus);
@@ -790,5 +790,238 @@ const AddResourceModal = ({ onClose, onSave }) => {
     </div>
   );
 };
+
+  const ResourceDetailsModal = ({ resource, onClose, onStatusChange, onDelete, onUpdate }) => {
+    const [notes, setNotes] = useState(resource.personalNotes || '');
+    const [editingNotes, setEditingNotes] = useState(false);
+
+    const handleSaveNotes = () => {
+      onUpdate({ personalNotes: notes });
+      setEditingNotes(false);
+    };
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+          maxWidth: '600px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          padding: '32px'
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px' }}>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+                {resource.title}
+              </h2>
+              <p style={{ fontSize: '14px', color: '#6b7280' }}>
+                {resourceStorage.getResourceTypeIcon(resource.type)} {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '28px',
+                cursor: 'pointer',
+                color: '#9ca3af',
+                padding: '0',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Status */}
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'block' }}>
+              Status
+            </label>
+            <select
+              value={resource.status}
+              onChange={(e) => onStatusChange(resource.id, e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                border: '2px solid #e5e7eb',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                backgroundColor: 'white'
+              }}
+            >
+              <option value={resourceStorage.RESOURCE_STATUS.NOT_STARTED}>Not Started</option>
+              <option value={resourceStorage.RESOURCE_STATUS.IN_PROGRESS}>In Progress</option>
+              <option value={resourceStorage.RESOURCE_STATUS.COMPLETED}>Completed</option>
+            </select>
+          </div>
+
+          {/* URL */}
+          {resource.url && (
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'block' }}>
+                URL
+              </label>
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#8b5cf6',
+                  textDecoration: 'none',
+                  wordBreak: 'break-all',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                {resource.url}
+                <ExternalLink size={16} />
+              </a>
+            </div>
+          )}
+
+          {/* Description */}
+          {resource.description && (
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'block' }}>
+                Description
+              </label>
+              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
+                {resource.description}
+              </p>
+            </div>
+          )}
+
+          {/* Duration & Difficulty */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+            {resource.duration && (
+              <div>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'block' }}>
+                  Duration
+                </label>
+                <p style={{ color: '#6b7280' }}>
+                  {resource.duration} minutes
+                </p>
+              </div>
+            )}
+            {resource.difficulty && (
+              <div>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'block' }}>
+                  Difficulty
+                </label>
+                <p style={{ color: '#6b7280' }}>
+                  {resource.difficulty.charAt(0).toUpperCase() + resource.difficulty.slice(1)}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Personal Notes */}
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                Personal Notes
+              </label>
+              <button
+                onClick={() => setEditingNotes(!editingNotes)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#8b5cf6',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                {editingNotes ? 'Done' : 'Edit'}
+              </button>
+            </div>
+            {editingNotes ? (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add your personal notes..."
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    minHeight: '100px',
+                    fontFamily: 'inherit',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <button
+                  onClick={handleSaveNotes}
+                  style={{
+                    padding: '10px 16px',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <p style={{ color: '#6b7280', lineHeight: '1.6', minHeight: '60px', padding: '10px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                {notes || 'No notes yet'}
+              </p>
+            )}
+          </div>
+
+          {/* Delete Button */}
+          <button
+            onClick={() => {
+              if (window.confirm('Delete this resource permanently?')) {
+                onDelete(resource.id);
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '12px',
+              backgroundColor: '#fee2e2',
+              color: '#dc2626',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            🗑️ Delete Resource
+          </button>
+        </div>
+      </div>
+    );
+  };
 
 export default ResourceLibrary;
