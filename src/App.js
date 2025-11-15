@@ -25,6 +25,7 @@ import {
 } from './utils/journalStorage';
 
 import topicStorage from './utils/topicStorage';
+import achievementStorage from './utils/achievementStorage';
 import WeeklyReviewModal from './components/WeeklyReviewModal';
 import weeklyReviewStorage from './utils/weeklyReviewStorage';
 import ResourceLibrary from './components/ResourceLibrary';
@@ -166,8 +167,32 @@ const PinterestGame = () => {
     setDeadlines(prev => [...prev, newDeadline]);
   };
 
-  // --- Achievements unlocking
+  // --- Achievements unlocking (supports tiered 3-level achievements)
+  const [achievementTick, setAchievementTick] = useState(0);
+
   const unlockAchievement = (achievementId) => {
+    // If this achievement is tiered, advance the tier and award tier XP
+    if (achievementStorage.hasTiers(achievementId)) {
+      const result = achievementStorage.advanceLevel(achievementId);
+      if (!result) return;
+
+      // If we actually leveled up
+      if (result.newLevel > result.previousLevel) {
+        // Ensure it's present in the simple achievements array (so existing checks still work)
+        setAchievements(prev => prev.includes(achievementId) ? prev : [...prev, achievementId]);
+
+        // Award XP for this tier
+        if (result.xpAwarded) addXP(result.xpAwarded);
+        confetti({ particleCount: 100, spread: 50, origin: { y: 0.7 }});
+
+        // Trigger UI refresh for Achievements component
+        setAchievementTick(t => t + 1);
+      }
+
+      return;
+    }
+
+    // Non-tiered achievement (legacy flow)
     if (achievements.includes(achievementId)) return;
     const ach = achievementsList.find(a => a.id === achievementId);
     if (!ach) return;
@@ -582,6 +607,7 @@ const PinterestGame = () => {
               achievementsList={achievementsList}
               unlockAchievement={unlockAchievement}
               styles={styles}
+              achievementTick={achievementTick}
             />
           </div>
 
