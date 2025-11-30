@@ -519,4 +519,4 @@ export default {
   getProjectsByDifficulty,
   deleteProject,
   resetAllProjects
-};```
+};

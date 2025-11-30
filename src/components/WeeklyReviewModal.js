@@ -1,34 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, ChevronRight, ChevronLeft, Trophy, Target, Sparkles, TrendingUp, X } from 'lucide-react';
-import topicStorage from '../utils/topicStorage';
-import weeklyReviewStorage from '../utils/weeklyReviewStorage';
 
-const WeeklyReviewModal = ({ onClose, onComplete }) => {
-  const [step, setStep] = useState(1);
-  const [reviewData, setReviewData] = useState({
-    topics: [],
-    biggestWin: '',
-    biggestWTF: '',
-    nextWeekFocus: [],
-    customGoal: ''
-  });
-  const [generatedQuests, setGeneratedQuests] = useState([]);
-  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Load this week's topics on mount
-  useEffect(() => {
-    const thisWeekTopics = topicStorage.getThisWeekTopics();
-    setReviewData(prev => ({
-      ...prev,
-      topics: thisWeekTopics.map(t => ({
-        id: t.id,
-        topicName: t.topicName,
-        course: t.course,
-        confidenceBefore: t.confidence,
-        confidenceAfter: t.confidence // Start with same value
-      }))
-    }));
-  }, []);
+// UI-only: all data and handlers come from props
+const WeeklyReviewModal = ({
+  onClose,
+  onComplete,
+  reviewData,
+  setReviewData,
+  generatedQuests,
+  setGeneratedQuests,
+  showSuccess,
+  setShowSuccess,
+  step,
+  setStep,
+  thisWeekTopics
+}) => {
+  // All state and handlers are managed by parent and passed as props
 
   // Update topic confidence
   const updateTopicConfidence = (topicId, newConfidence) => {

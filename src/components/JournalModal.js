@@ -1,33 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Brain, Sparkles, Flame, X, CheckCircle } from 'lucide-react';
 import { getDailyPrompt, getTopicPrompt, getReviewPrompt } from '../data/journalPrompts';
-import topicStorage from '../utils/topicStorage';
 
-const JournalModal = ({ onClose, onSubmit, currentStreak }) => {
+
+const JournalModal = ({ onClose, onSubmit, currentStreak, getPrompt }) => {
   const [entry, setEntry] = useState('');
   const [wordCount, setWordCount] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [dailyPrompt, setDailyPrompt] = useState(null);
 
   useEffect(() => {
-    // Get today's prompt: prioritize topic-based prompts if available
-    const allTopics = topicStorage.getAllTopics();
-    let prompt;
-    
-    if (allTopics && allTopics.length > 0 && Math.random() < 0.5) {
-      // 50% chance to show a topic-based or review prompt if topics exist
-      const lowConfidenceTopics = topicStorage.getLowConfidenceTopics();
-      if (lowConfidenceTopics && lowConfidenceTopics.length > 0 && Math.random() < 0.4) {
-        prompt = getReviewPrompt();
-      } else {
-        prompt = getTopicPrompt();
-      }
-    } else {
-      prompt = getDailyPrompt();
+    // Get today's prompt from parent-provided function
+    if (getPrompt) {
+      setDailyPrompt(getPrompt());
     }
-    
-    setDailyPrompt(prompt);
-  }, []);
+  }, [getPrompt]);
 
   // Count words in real-time
   useEffect(() => {

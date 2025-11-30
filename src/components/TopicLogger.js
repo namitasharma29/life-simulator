@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import { BookOpen, Plus, X } from 'lucide-react';
-import topicStorage from '../utils/topicStorage';
 
-const TopicLogger = ({ styles, onTopicAdded }) => {
+
+
+// UI-only: all data and handlers come from props
+const TopicLogger = ({
+  styles,
+  recentTopics = [],
+  onAddTopic,
+  onDeleteTopic
+}) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     course: '',
@@ -11,7 +18,6 @@ const TopicLogger = ({ styles, onTopicAdded }) => {
     notes: '',
     tags: ''
   });
-  const [recentTopics, setRecentTopics] = useState(topicStorage.getThisWeekTopics());
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,12 +29,10 @@ const TopicLogger = ({ styles, onTopicAdded }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     if (!formData.topicName.trim()) {
       alert('Please enter a topic name!');
       return;
     }
-
     const topic = {
       course: formData.course.trim(),
       topicName: formData.topicName.trim(),
@@ -36,26 +40,16 @@ const TopicLogger = ({ styles, onTopicAdded }) => {
       notes: formData.notes.trim(),
       tags: formData.tags.trim().split(',').map(t => t.trim()).filter(t => t)
     };
-
-    if (topicStorage.saveTopic(topic)) {
-      console.log('✅ Topic logged:', topic.topicName);
-      setFormData({
-        course: '',
-        topicName: '',
-        confidence: 3,
-        notes: '',
-        tags: ''
-      });
+    if (onAddTopic) {
+      onAddTopic(topic);
+      setFormData({ course: '', topicName: '', confidence: 3, notes: '', tags: '' });
       setShowForm(false);
-      setRecentTopics(topicStorage.getThisWeekTopics());
-      if (onTopicAdded) onTopicAdded();
     }
   };
 
   const handleDeleteTopic = (topicId) => {
-    if (window.confirm('Delete this topic?')) {
-      topicStorage.deleteTopic(topicId);
-      setRecentTopics(topicStorage.getThisWeekTopics());
+    if (window.confirm('Delete this topic?') && onDeleteTopic) {
+      onDeleteTopic(topicId);
     }
   };
 

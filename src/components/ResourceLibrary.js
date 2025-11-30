@@ -1,85 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, CheckCircle, Clock, Star, ExternalLink, Edit2, Trash2, BookOpen, X } from 'lucide-react';
-import resourceStorage from '../utils/resourceStorage';
-import topicStorage from '../utils/topicStorage';
 
-const ResourceLibrary = ({ onResourceComplete, styles }) => {
-  const [resources, setResources] = useState([]);
-  const [filteredResources, setFilteredResources] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedResource, setSelectedResource] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-  // Load resources
-  useEffect(() => {
-    loadResources();
-  }, []);
-
-  // Apply filters
-  useEffect(() => {
-    applyFilters();
-  }, [resources, searchQuery, filterType, filterStatus]);
-
-  const loadResources = () => {
-    const allResources = resourceStorage.getAllResources();
-    setResources(allResources);
-  };
-
-  const applyFilters = () => {
-    let filtered = [...resources];
-
-    // Search filter
-    if (searchQuery.trim()) {
-      filtered = resourceStorage.searchResources(searchQuery);
-    }
-
-    // Type filter
-    if (filterType !== 'all') {
-      filtered = filtered.filter(r => r.type === filterType);
-    }
-
-    // Status filter
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(r => r.status === filterStatus);
-    }
-
-    setFilteredResources(filtered);
-  };
-
-  const handleAddResource = (resourceData) => {
-    resourceStorage.saveResource(resourceData);
-    loadResources();
-    setShowAddModal(false);
-  };
-
-  const handleStatusChange = (resourceId, newStatus) => {
-    if (newStatus === resourceStorage.RESOURCE_STATUS.COMPLETED) {
-      const result = resourceStorage.markResourceComplete(resourceId);
-      if (result.success && onResourceComplete) {
-        onResourceComplete(result.xpEarned, result.resource);
-      }
-    } else {
-      resourceStorage.updateResourceStatus(resourceId, newStatus);
-    }
-    loadResources();
-  };
-
-  const handleDeleteResource = (resourceId) => {
-    if (window.confirm('Delete this resource?')) {
-      resourceStorage.deleteResource(resourceId);
-      loadResources();
-      setShowDetailsModal(false);
-    }
-  };
+/**
+ * ResourceLibrary UI Component (UI-only)
+ *
+ * Required props:
+ * - styles: object
+ * - resources: array
+ * - filteredResources: array
+ * - showAddModal, setShowAddModal: bool, fn
+ * - searchQuery, setSearchQuery: string, fn
+ * - filterType, setFilterType: string, fn
+ * - filterStatus, setFilterStatus: string, fn
+ * - selectedResource, setSelectedResource: object, fn
+ * - showDetailsModal, setShowDetailsModal: bool, fn
+ * - handleAddResource: fn
+ * - handleStatusChange: fn
+ * - handleDeleteResource: fn
+ * - applyFilters: fn
+ * - RESOURCE_STATUS: object (constants)
+ * - RESOURCE_TYPES: object (constants)
+ * - getResourceTypeIcon: fn
+ * - getResourceStats: fn (returns {total, completed, inProgress})
+ * - getCompletionRate: fn (returns %)
+ * - formatDuration: fn
+ */
+const ResourceLibrary = ({
+  styles,
+  resources,
+  filteredResources,
+  showAddModal,
+  setShowAddModal,
+  searchQuery,
+  setSearchQuery,
+  filterType,
+  setFilterType,
+  filterStatus,
+  setFilterStatus,
+  selectedResource,
+  setSelectedResource,
+  showDetailsModal,
+  setShowDetailsModal,
+  handleAddResource,
+  handleStatusChange,
+  handleDeleteResource,
+  applyFilters,
+  RESOURCE_STATUS,
+  RESOURCE_TYPES,
+  getResourceTypeIcon,
+  getResourceStats,
+  getCompletionRate,
+  formatDuration
+}) => {
+  // All state, logic, and helpers are managed by parent and passed as props
+  const stats = getResourceStats();
+  const completionRate = getCompletionRate();
 
   const getStatusColor = (status) => {
     switch (status) {
-      case resourceStorage.RESOURCE_STATUS.COMPLETED:
+      case RESOURCE_STATUS.COMPLETED:
         return '#10b981';
-      case resourceStorage.RESOURCE_STATUS.IN_PROGRESS:
+      case RESOURCE_STATUS.IN_PROGRESS:
         return '#f59e0b';
       default:
         return '#9ca3af';
@@ -88,17 +70,14 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case resourceStorage.RESOURCE_STATUS.COMPLETED:
+      case RESOURCE_STATUS.COMPLETED:
         return 'Completed';
-      case resourceStorage.RESOURCE_STATUS.IN_PROGRESS:
+      case RESOURCE_STATUS.IN_PROGRESS:
         return 'In Progress';
       default:
         return 'Not Started';
     }
   };
-
-  const stats = resourceStorage.getResourceStats();
-  const completionRate = resourceStorage.getCompletionRate();
 
   return (
     <div style={styles.card}>
@@ -188,9 +167,9 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
             }}
           >
             <option value="all">All Types</option>
-            {Object.entries(resourceStorage.RESOURCE_TYPES).map(([key, value]) => (
+            {Object.entries(RESOURCE_TYPES).map(([key, value]) => (
               <option key={value} value={value}>
-                {resourceStorage.getResourceTypeIcon(value)} {key.charAt(0) + key.slice(1).toLowerCase()}
+                {getResourceTypeIcon(value)} {key.charAt(0) + key.slice(1).toLowerCase()}
               </option>
             ))}
           </select>
@@ -210,9 +189,9 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
             }}
           >
             <option value="all">All Status</option>
-            <option value={resourceStorage.RESOURCE_STATUS.NOT_STARTED}>Not Started</option>
-            <option value={resourceStorage.RESOURCE_STATUS.IN_PROGRESS}>In Progress</option>
-            <option value={resourceStorage.RESOURCE_STATUS.COMPLETED}>Completed</option>
+            <option value={RESOURCE_STATUS.NOT_STARTED}>Not Started</option>
+            <option value={RESOURCE_STATUS.IN_PROGRESS}>In Progress</option>
+            <option value={RESOURCE_STATUS.COMPLETED}>Completed</option>
           </select>
         </div>
       </div>
@@ -255,6 +234,7 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
         <AddResourceModal
           onClose={() => setShowAddModal(false)}
           onSave={handleAddResource}
+          RESOURCE_TYPES={RESOURCE_TYPES}
         />
       )}
 
@@ -268,11 +248,6 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
           }}
           onStatusChange={handleStatusChange}
           onDelete={handleDeleteResource}
-          onUpdate={(updates) => {
-            resourceStorage.updateResource(selectedResource.id, updates);
-            loadResources();
-            setSelectedResource({ ...selectedResource, ...updates });
-          }}
         />
       )}
     </div>
@@ -282,7 +257,7 @@ const ResourceLibrary = ({ onResourceComplete, styles }) => {
 // ============================================
 // Resource Card Component
 // ============================================
-const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getStatusLabel }) => {
+const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getStatusLabel, RESOURCE_STATUS, getResourceTypeIcon }) => {
   const statusColor = getStatusColor(resource.status);
   const statusLabel = getStatusLabel(resource.status);
 
@@ -312,7 +287,7 @@ const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getSt
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <div style={{ fontSize: '24px' }}>{resourceStorage.getResourceTypeIcon(resource.type)}</div>
+        <div style={{ fontSize: '24px' }}>{getResourceTypeIcon(resource.type)}</div>
         <div
           style={{
             padding: '4px 10px',
@@ -389,7 +364,7 @@ const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getSt
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: '8px' }}>
-        {resource.status === resourceStorage.RESOURCE_STATUS.NOT_STARTED && (
+        {resource.status === RESOURCE_STATUS.NOT_STARTED && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -410,7 +385,7 @@ const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getSt
             Start Learning
           </button>
         )}
-        {resource.status === resourceStorage.RESOURCE_STATUS.IN_PROGRESS && (
+        {resource.status === RESOURCE_STATUS.IN_PROGRESS && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -436,7 +411,7 @@ const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getSt
             Mark Complete
           </button>
         )}
-        {resource.status === resourceStorage.RESOURCE_STATUS.COMPLETED && (
+        {resource.status === RESOURCE_STATUS.COMPLETED && (
           <div
             style={{
               flex: 1,
@@ -485,14 +460,14 @@ const ResourceCard = ({ resource, onStatusChange, onClick, getStatusColor, getSt
 // ============================================
 // Add Resource Modal
 // ============================================
-const AddResourceModal = ({ onClose, onSave }) => {
+const AddResourceModal = ({ onClose, onSave, RESOURCE_TYPES }) => {
   const [formData, setFormData] = useState({
     title: '',
-    type: resourceStorage.RESOURCE_TYPES.ARTICLE,
+    type: RESOURCE_TYPES.ARTICLE,
     url: '',
     description: '',
     duration: '',
-    difficulty: resourceStorage.DIFFICULTY.INTERMEDIATE,
+    difficulty: 'Intermediate',
     topics: '',
     tags: '',
     author: ''
